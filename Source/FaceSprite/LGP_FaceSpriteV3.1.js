@@ -8,16 +8,16 @@ Imported.LGP_FaceSprite = true;
 
 var LGP = LGP || {};
 LGP.FS = LGP.FS || {};
-LGP.FS.version = 3.2;
+LGP.FS.version = 3.1;
 
 /*:
  * @title Face Sprite
  * @author Azel
- * @date 02.11.18
- * @version 3.2
+ * @date 04.11.17
+ * @version 3.1
  * @filename LGP_FaceSprite.js
  *
- * @plugindesc v3.2 Displays Face Sprite in Messages in a saparate Window
+ * @plugindesc v3.1 Displays Face Sprite in Messages in a saparate Window
  *
  * @help
  * ============================================================================
@@ -75,10 +75,8 @@ LGP.FS.version = 3.2;
  *
  * v3.1:
  * - Updated Documentary.
- * v3.2
- * - Fixed a bug where a posistion command didn't function properly when the
- *   command was put before a message.
  */
+  
 
 
 //==================================================================================================
@@ -207,7 +205,6 @@ Window_FaceSprite.prototype.clear = function() {
 };
 
 Window_FaceSprite.prototype.clearFSSystemData = function(){
-    console.log("clear");
     $gameSystem.setFaceSpritePosition(0, 0);
 };
 
@@ -233,7 +230,7 @@ Window_FaceSprite.prototype.updateWindowData = function() {
 
 Window_FaceSprite.prototype.updateWindowPosition = function() {
     this._faceCoord = $gameSystem.getFaceSpritePosition();
-    if (this._faceCoord[0] == 0 || this._faceCoord[1] == 0) {
+        if (this._faceCoord[0] == 0 || this._faceCoord[1] == 0) {
         this._faceCoord = $gameSystem.getFSPos(1);    
     }
     this.move(this._faceCoord[0], this._faceCoord[1], Window_Base._faceWidth, Window_Base._faceHeight);
@@ -248,7 +245,7 @@ Window_FaceSprite.prototype.updateWindowOpacity = function() {
         return;
     } 
     this.openness = parent.openness;
-    if (this.openness == 0) this.clearFSSystemData();
+    if (this.isClosed()) this.clearFSSystemData();
 };
 
 
