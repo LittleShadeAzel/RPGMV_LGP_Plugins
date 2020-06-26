@@ -8,16 +8,16 @@ Imported.LGP_BetterDamagePopup = true;
 
 var LGP = LGP || {};
 LGP.BDP = LGP.BDP || {};
-LGP.BDP.version = 1.7;
+LGP.BDP.version = 1.5;
 
 /*:
  * @title Better Damage Popup
  * @author Azel
  * @date 13.07.18
- * @version 1.7
+ * @version 1.5
  * @filename LGP_BetterDamagePopup.js
  *
- * @plugindesc v1.7 YEP_BattleEngineCore required! 
+ * @plugindesc v1.5 YEP_BattleEngineCore required! 
  * completly reworked the damage popup system.
  *
  * @param ---Font Settings---
@@ -396,7 +396,7 @@ LGP.BDP.version = 1.7;
  * LGP_CustomWindowText - (not available yet) Enables Text Shadow.
  *
  * ============================================================================
- * Changelog (last updated: 07.09.18)
+ * Changelog (last updated: 03.08.18)
  * ============================================================================
  *
  * v1.0 - Fresh out of the oven.
@@ -414,8 +414,6 @@ LGP.BDP.version = 1.7;
  *      - Added popup for States and Buffs.
  * v1.4 - Fixed Coding error.
  * v1.5 - Fixed Debuff error.
- * v1.6 - Fixed an error that caused no damage to appear.
- * v1.7 - Fixed an error that was caused by compatiblity issues with other plugins that for some reason set the x and y values of Sprite_Actor intances to 0.
  */
 //=============================================================================
 
@@ -644,8 +642,8 @@ Sprite_Battler.prototype.setupDamagePopup = function() {
 			sprite.setup(this._battler);
 			this._damages.push(sprite);
 			if (code === "") {
-			    sprite.x = this._battler.spritePosX() + this.damageOffsetX();
-			    sprite.y = this._battler.spritePosY() + this.damageOffsetY();        
+			    sprite.x = this.x + this.damageOffsetX();
+			    sprite.y = this.y + this.damageOffsetY();        
 				this.pushDamageSprite(sprite);
 			} else {
 			    try {
@@ -654,8 +652,8 @@ Sprite_Battler.prototype.setupDamagePopup = function() {
 			        LGP.Util.displayError(e, code, "CUSTOM POPUP POSITION ERROR")
 			    }
 			}
-
 			BattleManager._spriteset.addChild(sprite);
+	    	console.log(this._spriteset);
 			this._battler.clearResult();
 		}
     } else {
@@ -864,7 +862,7 @@ Sprite_Damage.prototype.defaultMovementCode = function() {
     // sprite of the current effect.
 
     // Damage Numbers expect blocked damage
-    if ((result.hpDamage > 0 || result.mpDamage > 0 || result.tpDamage > 0) && (Imported.YEP_AbsorptionBarrier || !result._barrierAffected)) {
+    if ((result.hpDamage > 0 || result.mpDamage > 0 || result.tpDamage > 0) && (Imported.YEP_AbsorptionBarrier && !result._barrierAffected)) {
     	var sprite = this.getChild("number");
     	var d = this._duration;	
 

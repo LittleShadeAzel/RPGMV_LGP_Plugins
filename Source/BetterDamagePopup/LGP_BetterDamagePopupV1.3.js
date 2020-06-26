@@ -8,16 +8,16 @@ Imported.LGP_BetterDamagePopup = true;
 
 var LGP = LGP || {};
 LGP.BDP = LGP.BDP || {};
-LGP.BDP.version = 1.7;
+LGP.BDP.version = 1.3;
 
 /*:
  * @title Better Damage Popup
  * @author Azel
  * @date 13.07.18
- * @version 1.7
+ * @version 1.3
  * @filename LGP_BetterDamagePopup.js
  *
- * @plugindesc v1.7 YEP_BattleEngineCore required! 
+ * @plugindesc v1.3 YEP_BattleEngineCore required! 
  * completly reworked the damage popup system.
  *
  * @param ---Font Settings---
@@ -349,8 +349,8 @@ LGP.BDP.version = 1.7;
  * Lunatic Code - JavaScript Code for customisation
  * ============================================================================
  * 
- * A damage popup mechanic is based on already made design choices.
- * Since this plugin may not provide the desired functions, you're still able
+ * A damage popup mechanic is heavly rileient on already made design choices.
+ * Since this plugin may not provide the disired functions, you're still able
  * to implement your idea in your game.
  * 
  * In the Parameter Section "Popup Custom Code" I created some "do-it-yourself"
@@ -358,7 +358,7 @@ LGP.BDP.version = 1.7;
  * instead. If the notebox remains empty, the default code will be used.
  *
  * You may want to study the default Code in this Plugin to get all the
- * important variables and functions you have to consider.
+ * importand variables and functions you have to consider.
  *
  * ============================================================================
  * Goals for later
@@ -396,7 +396,7 @@ LGP.BDP.version = 1.7;
  * LGP_CustomWindowText - (not available yet) Enables Text Shadow.
  *
  * ============================================================================
- * Changelog (last updated: 07.09.18)
+ * Changelog (last updated: 03.08.18)
  * ============================================================================
  *
  * v1.0 - Fresh out of the oven.
@@ -412,10 +412,6 @@ LGP.BDP.version = 1.7;
  *      - Added Damage "Resist" to check elemental effectiveness.
  *      - Added custom elemental damage format possibility.
  *      - Added popup for States and Buffs.
- * v1.4 - Fixed Coding error.
- * v1.5 - Fixed Debuff error.
- * v1.6 - Fixed an error that caused no damage to appear.
- * v1.7 - Fixed an error that was caused by compatiblity issues with other plugins that for some reason set the x and y values of Sprite_Actor intances to 0.
  */
 //=============================================================================
 
@@ -540,7 +536,7 @@ Game_ActionResult.prototype.clear = function() {
     this.itemElements = [];
 };
 
-Game_ActionResult.prototype.setCustomText = function(value, format) {
+Game_ActionResult.prototype.setCustomText = function(value , format) {
     this.customText.string = value.toString();
     this.customText.format = format;
 };
@@ -632,32 +628,30 @@ Game_Battler.prototype.startDamagePopup = function() {
     }
 };
 
-
 //=============================================================================
 // Sprite_Battler
 //=============================================================================
 Sprite_Battler.prototype.setupDamagePopup = function() {
     if (this._battler.isDamagePopupRequested()) {
-		if (this._battler.isSpriteVisible()) {
-			var sprite = new Sprite_Damage();
-			var code = LGP.Param.BDPpopPosCode;
-			sprite.setup(this._battler);
-			this._damages.push(sprite);
-			if (code === "") {
-			    sprite.x = this._battler.spritePosX() + this.damageOffsetX();
-			    sprite.y = this._battler.spritePosY() + this.damageOffsetY();        
-				this.pushDamageSprite(sprite);
-			} else {
-			    try {
-			        eval(code);    
-			    } catch (e) {
-			        LGP.Util.displayError(e, code, "CUSTOM POPUP POSITION ERROR")
-			    }
-			}
-
-			BattleManager._spriteset.addChild(sprite);
-			this._battler.clearResult();
-		}
+      if (this._battler.isSpriteVisible()) {
+        var sprite = new Sprite_Damage();
+        var code = LGP.Param.BDPpopPosCode;
+        sprite.setup(this._battler);
+        this._damages.push(sprite);
+        if (code === "") {
+            sprite.x = this.x + this.damageOffsetX();
+            sprite.y = this.y + this.damageOffsetY();        
+        	this.pushDamageSprite(sprite);
+        } else {
+            try {
+                eval(code);    
+            } catch (e) {
+                LGP.Util.displayError(e, code, "CUSTOM POPUP POSITION ERROR")
+            }
+        }
+        BattleManager._spriteset.addChild(sprite);
+        this._battler.clearResult();
+      }
     } else {
         this._battler.clearDamagePopup();
     }
@@ -665,21 +659,21 @@ Sprite_Battler.prototype.setupDamagePopup = function() {
 
 
 Sprite_Battler.prototype.pushDamageSprite = function(sprite) {
-	var heightBuffer = Yanfly.Param.BECPopupOverlap;
-	if (Yanfly.Param.BECNewPopBottom) {
-		this._damages.forEach(function(spr) {
-			for (var i = 0; i < spr.children.length; i++) {
-				childSprite = spr.children[i];
-				childSprite.anchor.y += heightBuffer;
-			}
-		}, this);
-	} else {
-		heightBuffer *= this._damages.length
-		for (var i = 0; i < sprite.children.length; i++) {
-			childSprite = sprite.children[i];
-			childSprite.anchor.y += heightBuffer;
-		}
-	}
+    var heightBuffer = Yanfly.Param.BECPopupOverlap;
+    if (Yanfly.Param.BECNewPopBottom) {
+      this._damages.forEach(function(spr) {
+        for (var i = 0; i < spr.children.length; i++) {
+          childSprite = spr.children[i];
+          childSprite.anchor.y += heightBuffer;
+        }
+      }, this);
+    } else {
+      heightBuffer *= this._damages.length
+      for (var i = 0; i < sprite.children.length; i++) {
+        childSprite = sprite.children[i];
+        childSprite.anchor.y += heightBuffer;
+      }
+    }
 };
 
 
@@ -864,7 +858,7 @@ Sprite_Damage.prototype.defaultMovementCode = function() {
     // sprite of the current effect.
 
     // Damage Numbers expect blocked damage
-    if ((result.hpDamage > 0 || result.mpDamage > 0 || result.tpDamage > 0) && (Imported.YEP_AbsorptionBarrier || !result._barrierAffected)) {
+    if ((result.hpDamage > 0 || result.mpDamage > 0 || result.tpDamage > 0) && (Imported.YEP_AbsorptionBarrier && !result._barrierAffected)) {
     	var sprite = this.getChild("number");
     	var d = this._duration;	
 
@@ -1059,7 +1053,7 @@ Sprite_Damage.prototype.drawDefaultMiss = function() {
 	sprite.bitmap.outlineColor = LGP.Param.BDPmissOC;        
  
     var bitmap = sprite.bitmap;  
-    bitmap.drawText(string, 0, 0, w, h);    
+    bitmap.drawText(string, 0, 0, w, h,);    
 };
 
 Sprite_Damage.prototype.drawDefaultBuff = function() {
@@ -1100,7 +1094,7 @@ Sprite_Damage.prototype.drawDefaultBuff = function() {
         buffSprite.anchor.x = 0.5;
         buffSprite.anchor.y = 0.5 + addedBuffs.length + i; 
         
- 		var paramName = $dataSystem.terms.params[addedDebuffs[i]];
+ 		var paramName = $dataSystem.terms.params[addedBuffs[i]];
         
         var w = Window_Base._iconWidth + 5 + this.getTextWidth(paramName) + LGP.Param.BDPfontSizeBuffer;
         var h = Window_Base._iconHeight;
@@ -1141,12 +1135,11 @@ Sprite_Damage.prototype.drawDefaultState = function() {
     var result = this._result;
     var addedStates = result.addedStateObjects();
     var removedStates = result.removedStateObjects();
-
     var sprite = new Sprite();
     sprite.anchor.x = 0.5;
     sprite.anchor.y = 0.5;
     this.addChild(sprite);
-    for (var i = 0; i < addedStates.length; i++) {
+    for (var i = 0; i < addedStates.length; i++ ) {
         var stateSprite = new Sprite();
         sprite.addChild(stateSprite);
 
@@ -1167,7 +1160,8 @@ Sprite_Damage.prototype.drawDefaultState = function() {
         this.drawPopupIcon(bitmap, addedStates[i].iconIndex, this.getTextWidth(sign), 0);
         bitmap.drawText(addedStates[i].name, this.getTextWidth(sign) + Window_Base._iconWidth + 5, 0, 0, h);
     }
-    for (var i = 0; i < removedStates.length; i++) {
+
+    for (var i = 0; i < removedStates.length; i++ ) {
         var stateSprite = new Sprite();
         sprite.addChild(stateSprite);
 
@@ -1220,13 +1214,13 @@ Sprite_Damage.prototype.drawDefaultCustomText = function() {
     bitmap.drawText(string, 0, 0, w, h);
 };
 
-Sprite_Damage.prototype.drawPopupIcon = function(bitmap, iconIndex, x, y) {
+Sprite_Damage.prototype.drawPopupIcon = function(bitmap, iconIndex, x ,y) {
     var iconBitmap = ImageManager.loadSystem('IconSet');
     var pw = Window_Base._iconWidth;
     var ph = Window_Base._iconHeight;
     var sx = iconIndex % 16 * pw;
     var sy = Math.floor(iconIndex / 16) * ph;
-    bitmap.blt(iconBitmap, sx, sy, pw, ph, x, y);
+    bitmap.blt(iconBitmap, sx, sy, pw, ph, x, y,);
 };
 
 Sprite_Damage.prototype.getTextWidth = function(text, fontSize) {
