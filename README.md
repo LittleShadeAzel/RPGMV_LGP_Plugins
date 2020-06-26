@@ -1,2 +1,2 @@
-# RPGMV_FaceSprite
-A RPG Maker MV Plugin created by Azel.
+# RPGMV_Plugins
+A RPG Maker MV Plugin Pool created by Azel.
