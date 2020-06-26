@@ -7,7 +7,7 @@ Imported.LGP_EasyBridge = true;
 
 var LGP = LGP || {};
 LGP.EB = LGP.EB || {};
-LGP.EB.version = 1.1;
+LGP.EB.version = 1.2;
 
  /*:
  * @title LGP Easy Bridge
